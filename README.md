@@ -55,7 +55,7 @@ Sample outputs include:
 - Bias histograms by demographic group  
 - A formal PDF report summarizing all findings  
 
-*(You may insert screenshots or sample PDF thumbnails here once generated.)*
+
 
 ---
 
