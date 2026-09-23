@@ -35,7 +35,10 @@ with st.sidebar:
             "Demo models", ["guarded-demo-model", "baseline-demo-model"],
             default=["guarded-demo-model", "baseline-demo-model"])
         providers = [OfflineDemoProvider(model) for model in offline_models]
-        st.caption("Deterministic fixture responses are clearly labeled and require no credentials.")
+        st.caption(
+            "Deterministic illustrative fixtures require no credentials. They demonstrate "
+            "the audit workflow and do not represent measured real-world models."
+        )
     else:
         base_url = st.text_input("Base URL", value="https://api.openai.com/v1")
         model_names = st.text_input("Models (comma-separated)", value="gpt-4.1-mini")
@@ -49,7 +52,7 @@ with st.sidebar:
                                   default=[0.2, 0.7])
     max_tokens = st.number_input("Maximum output tokens", 32, 2048, 256, 32)
     target_upload = st.file_uploader("Optional target suite (.txt)", type=["txt"])
-    run_button = st.button("Run reproducible audit", type="primary", use_container_width=True)
+    run_button = st.button("Run reproducible audit", type="primary", width="stretch")
 
 
 if run_button:
@@ -100,19 +103,19 @@ overview_tab, mutation_tab, cluster_tab, evidence_tab, export_tab, methodology_t
     ["Model comparison", "Mutation analysis", "Behavior clusters", "Evidence", "Exports", "Methodology"])
 
 with overview_tab:
-    st.dataframe(summary, use_container_width=True, hide_index=True)
+    st.dataframe(summary, width="stretch", hide_index=True)
     comparison = px.bar(summary, x="provider", y=["violation_rate", "refusal_rate", "error_rate"],
                         barmode="group", title="Behavioral rates by model")
     comparison.update_layout(yaxis_tickformat=".0%", xaxis_title="Model", yaxis_title="Rate")
-    st.plotly_chart(comparison, use_container_width=True)
+    st.plotly_chart(comparison, width="stretch")
 
 with mutation_tab:
     chart = px.line(mutation, x="mutation_index", y="violation_rate", color="provider",
                     markers=True, title="Violation rate by mutation strategy")
     chart.update_layout(yaxis_tickformat=".0%", xaxis_title="Mutation index",
                         yaxis_title="Violation rate")
-    st.plotly_chart(chart, use_container_width=True)
-    st.dataframe(mutation, use_container_width=True, hide_index=True)
+    st.plotly_chart(chart, width="stretch")
+    st.dataframe(mutation, width="stretch", hide_index=True)
 
 with cluster_tab:
     clustered = pd.DataFrame(cluster_outputs(rows))
@@ -122,25 +125,25 @@ with cluster_tab:
         counts = clustered.groupby(["cluster", "representative_terms"]).size().reset_index(name="responses")
         cluster_chart = px.bar(counts, x="cluster", y="responses", color="representative_terms",
                                title="Behavioral response clusters")
-        st.plotly_chart(cluster_chart, use_container_width=True)
-        st.dataframe(clustered, use_container_width=True, hide_index=True)
+        st.plotly_chart(cluster_chart, width="stretch")
+        st.dataframe(clustered, width="stretch", hide_index=True)
 
 with evidence_tab:
     display = results.copy()
     display["violations"] = display["violations"].apply(lambda tags: ", ".join(tags) or "None")
     selected_columns = ["provider", "base_target", "mutation_index", "temperature",
                         "prompt", "output", "violations", "refused", "latency_ms", "error"]
-    st.dataframe(display[selected_columns], use_container_width=True, hide_index=True)
+    st.dataframe(display[selected_columns], width="stretch", hide_index=True)
 
 with export_tab:
-    st.write("Every export includes the run ID, settings, raw responses, and documented metrics.")
+    st.write("Exports include the run ID, audit settings, raw responses, and documented metrics.")
     c1, c2, c3 = st.columns(3)
     c1.download_button("Download CSV", rows_to_csv(rows), f"blackbox-{run_id}.csv", "text/csv",
-                       use_container_width=True)
+                       width="stretch")
     c2.download_button("Download JSON", rows_to_json(rows), f"blackbox-{run_id}.json",
-                       "application/json", use_container_width=True)
+                       "application/json", width="stretch")
     c3.download_button("Download PDF", rows_to_pdf(rows), f"blackbox-{run_id}.pdf",
-                       "application/pdf", use_container_width=True)
+                       "application/pdf", width="stretch")
 
 with methodology_tab:
     st.markdown("""

@@ -68,7 +68,12 @@ def run_audit(base_targets: Iterable[str], temperatures: Iterable[float],
     active_providers = list(providers or ([provider] if provider else [OfflineDemoProvider()]))
     if not active_providers:
         raise ValueError("At least one provider is required.")
-    run_material = "|".join(targets + [str(v) for v in temps] + [str(max_tokens)])
+    provider_names = [getattr(item, "name", item.__class__.__name__)
+                      for item in active_providers]
+    run_material = "|".join(
+        ["blackbox-audit-v1", *targets, *[str(v) for v in temps], str(max_tokens),
+         *provider_names]
+    )
     run_id = hashlib.sha256(run_material.encode("utf-8")).hexdigest()[:12]
     created_at = datetime.now(timezone.utc).isoformat()
     rows: List[Dict[str, Any]] = []

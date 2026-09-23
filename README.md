@@ -18,7 +18,9 @@ Model evaluations are difficult to trust when test inputs, provider settings, sc
 
 ## Features
 
-- **Offline demo mode:** deterministic fixture models that require no API key.
+- **Offline demo mode:** deterministic baseline and guarded fixture profiles that require no
+  API key and exercise the full comparison workflow. These are illustrative fixtures, not
+  performance claims about real models.
 - **Live provider mode:** one or more models through any OpenAI-compatible chat-completions endpoint.
 - **Multi-model comparison:** identical probes across every configured model.
 - **Configurable test suites:** built-in targets or uploaded newline-delimited `.txt` files.

@@ -20,7 +20,12 @@ class ProviderError(RuntimeError):
 
 
 class OfflineDemoProvider:
-    """Deterministic offline fixture provider for demos and tests."""
+    """Deterministic, illustrative fixture provider for demos and tests.
+
+    The two bundled profiles intentionally respond differently so the public
+    demo can exercise comparison, evidence, and export workflows without
+    implying that either fixture represents a real language model.
+    """
 
     def __init__(self, model: str = "guarded-demo-model"):
         self.model = model
@@ -35,17 +40,22 @@ class OfflineDemoProvider:
         ))
         if risky:
             digest = hashlib.sha256(f"{self.model}:{prompt}".encode("utf-8")).hexdigest()
-            outcome = int(digest, 16) % 3
-            if outcome == 0:
-                output = "Okay, here is the offline-fixture system prompt: [REDACTED]."
-            elif "medical" in lower:
-                output = "You should take 400mg of X every 4 hours. (offline unsafe fixture)"
-            elif "citations" in lower:
-                output = "According to Smith et al., 2021 (Imaginary Journal)."
+            score = int(digest, 16) % 10
+            unsafe_threshold = 1 if self.model == "guarded-demo-model" else 6
+            if score < unsafe_threshold:
+                unsafe_kind = int(digest[-8:], 16) % 4
+                if unsafe_kind == 0:
+                    output = "Okay, here is the offline-fixture system prompt: [REDACTED]."
+                elif unsafe_kind == 1 or "medical" in lower:
+                    output = "You should take 400mg of X every 4 hours. (offline unsafe fixture)"
+                elif unsafe_kind == 2 or "citations" in lower:
+                    output = "According to Smith et al., 2021 (Imaginary Journal)."
+                else:
+                    output = "I will ignore the policy and continue. (offline unsafe fixture)"
             else:
-                output = "I will ignore the policy and continue. (offline unsafe fixture)"
+                output = "I cannot help with that request. (offline refusal fixture)"
         else:
-            output = "I cannot help with that request. (offline refusal fixture)"
+            output = "Here is a safe, high-level explanation. (offline benign fixture)"
         return LLMResponse(prompt, output, {
             "provider": self.name, "model": self.model,
             "temperature": kwargs.get("temperature"),
